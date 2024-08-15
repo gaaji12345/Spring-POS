@@ -5,6 +5,7 @@ package config;
     */
 
 import jakarta.persistence.EntityManagerFactory;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jndi.JndiTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -20,58 +22,45 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 @Configuration
 //@EnableJpaRepositories(basePackages = "repo")
 @EnableTransactionManagement
-//@PropertySource("classpath:hibernates.properties")
+
 public class JPAConfig {
-//
-//    @Autowired
-//    Environment env;
-//
-//
-//
-//    @Bean
-//   public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource ds, JpaVendorAdapter ja){
-//        LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
-//        bean.setJpaVendorAdapter(ja);
-//        bean.setDataSource(ds);//connection
-//        bean.setPackagesToScan(env.getRequiredProperty("entity.pakage.name"));
-//        return bean;
-//    }
-//
-//    @Bean
-//    public  DataSource dataSource(){
-//        DriverManagerDataSource dm = new DriverManagerDataSource();
-//        dm.setUrl(env.getRequiredProperty("my.app.url"));
-//        dm.setUsername(env.getRequiredProperty("my.app.username"));
-//        dm.setPassword(env.getRequiredProperty("my.app.password"));
-//        dm.setDriverClassName(env.getRequiredProperty("my.app.driverclassname"));
-//        return dm;
-//
-//    }
-//
-//
-//
-//
-//
-//    @Bean
-//    public JpaVendorAdapter jpaVendorAdapter(){
-//        HibernateJpaVendorAdapter vendor=new HibernateJpaVendorAdapter();
-//        vendor.setDatabasePlatform(env.getRequiredProperty("my.app.dialect"));
-//        vendor.setDatabase(Database.MYSQL);
-//        vendor.setShowSql(true);
-//        vendor.setGenerateDdl(true);
-//        return vendor;
-//
-//    }
-//
-//    @Bean
-//    public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
-//        return new JpaTransactionManager(emf);
-//    }
+    @Autowired
+    Environment env;
+
+    @Bean
+    public DataSource dataSource() throws NamingException {
+        return (DataSource) new JndiTemplate().lookup("java:comp/env/jdbc/MyDB");
+    }
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setGenerateDdl(true);
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setJpaVendorAdapter(vendorAdapter);
+        factory.setPackagesToScan("entity");
+        factory.setDataSource(dataSource());
+        return factory;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        JpaTransactionManager txManager = new JpaTransactionManager();
+        txManager.setEntityManagerFactory(entityManagerFactory);
+        return txManager;
+    }
+
+
+    @Bean
+    public ModelMapper modelMapper(){
+        return new ModelMapper();
+    }
 
 
 }
