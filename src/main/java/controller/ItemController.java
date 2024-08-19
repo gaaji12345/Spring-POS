@@ -3,11 +3,10 @@ package controller;/*  gaajiCode
     17/08/2024
     */
 
+import dto.CustomerDTO;
+import dto.ItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import services.ItemService;
 import util.ResponceUtil;
 
@@ -24,6 +23,27 @@ public class ItemController {
     public ResponceUtil getAllItems(){
 
         return new ResponceUtil(200,"OK",itemService.getAllItems());
+    }
+
+    @PostMapping
+    public ResponceUtil saveItem(@ModelAttribute ItemDTO i){
+        itemService.saveItem(i);
+        return new ResponceUtil(200, "successfully added", i);
+    }
+
+    @PutMapping()
+    public  ResponceUtil  updateItem(@RequestBody  ItemDTO i){
+        itemService.updateItem(i);
+        return new ResponceUtil(200,"Updated",null);
+
+    }
+
+
+    @DeleteMapping
+    public  ResponceUtil deleteItem(@RequestParam("code") String code){
+    itemService.deleteItem(code);
+        return new ResponceUtil(200,"Deleted",null);
+
     }
 
 
