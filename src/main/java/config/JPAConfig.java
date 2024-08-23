@@ -26,16 +26,55 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 @Configuration
-//@EnableJpaRepositories(basePackages = "repo")
+@EnableJpaRepositories(basePackages = "repo")
 @EnableTransactionManagement
-
+@PropertySource("classpath:hibernates.properties")
 public class JPAConfig {
+//    @Autowired
+//    Environment env;
+//
+//    @Bean
+//    public DataSource dataSource() throws NamingException {
+//        return (DataSource) new JndiTemplate().lookup("java:comp/env/jdbc/MyDB");
+//    }
+//
+//    @Bean
+//    public LocalContainerEntityManagerFactoryBean entityManagerFactory() throws NamingException {
+//        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//        vendorAdapter.setGenerateDdl(true);
+//        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+//        factory.setJpaVendorAdapter(vendorAdapter);
+//        factory.setPackagesToScan("entity");
+//        factory.setDataSource(dataSource());
+//        return factory;
+//    }
+//
+//    @Bean
+//    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+//        JpaTransactionManager txManager = new JpaTransactionManager();
+//        txManager.setEntityManagerFactory(entityManagerFactory);
+//        return txManager;
+//    }
+//
+//
+//    @Bean
+//    public ModelMapper modelMapper(){
+//        return new ModelMapper();
+//    }
+
     @Autowired
     Environment env;
 
     @Bean
     public DataSource dataSource() throws NamingException {
-        return (DataSource) new JndiTemplate().lookup("java:comp/env/jdbc/MyDB");
+        DriverManagerDataSource dmds = new DriverManagerDataSource();
+        dmds.setDriverClassName(env.getRequiredProperty("my.app.driverclassname"));
+        dmds.setUsername(env.getRequiredProperty("my.app.username"));
+        dmds.setUrl(env.getRequiredProperty("my.app.url"));
+        dmds.setPassword(env.getRequiredProperty("my.app.password"));
+        return dmds;
+
+       // return (DataSource) new JndiTemplate().lookup("java:comp/env/jdbc/MyDB");
     }
 
     @Bean
@@ -44,7 +83,7 @@ public class JPAConfig {
         vendorAdapter.setGenerateDdl(true);
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setPackagesToScan("entity");
+        factory.setPackagesToScan(env.getRequiredProperty("entity.pakage.name"));
         factory.setDataSource(dataSource());
         return factory;
     }
@@ -61,6 +100,5 @@ public class JPAConfig {
     public ModelMapper modelMapper(){
         return new ModelMapper();
     }
-
 
 }
