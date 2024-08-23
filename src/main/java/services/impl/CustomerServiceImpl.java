@@ -50,7 +50,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO searchCustomer(String id) {
-        return null;
+
+        return   modelMapper.map(customerRepo.findById(id).get(), CustomerDTO.class);
+
     }
 
     @Override
