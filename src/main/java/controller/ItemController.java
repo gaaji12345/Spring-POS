@@ -3,7 +3,6 @@ package controller;/*  gaajiCode
     17/08/2024
     */
 
-import dto.CustomerDTO;
 import dto.ItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
